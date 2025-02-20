@@ -1,0 +1,30 @@
+<div id="data-grid-cliente">
+  <dx-data-grid id="gridContainer"
+  [dataSource]="clientes"
+  keyExpr="id"
+  [showBorders]="true"
+  (onRowInserting)="adicionarCliente($event)"
+  (onRowRemoving)="removerCliente($event)"
+  (onRowUpdated)="atualizarCliente($event)">
+
+  <dxo-paging [enabled]="true" [pageSize]="15"></dxo-paging>
+  <dxo-pager [visible]="true"></dxo-pager>
+  <dxo-header-filter [visible]="true"></dxo-header-filter>
+  <dxo-search-panel [visible]="true"></dxo-search-panel>
+  <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true" [allowDeleting]="true" [confirmDelete]="true">
+    <dxo-popup title="Cadastro Cliente" [showTitle]="true"  [width]="700" [height]="200"></dxo-popup>
+    <dxo-form >
+      <dxi-item itemType="group" [colCount]="2" [colSpan]="2">
+        <dxi-item dataField="codigo" ></dxi-item>
+        <dxi-item dataField="nome"></dxi-item>
+      </dxi-item>
+    </dxo-form>
+  </dxo-editing>
+
+    <dxi-column dataField="id" sortOrder="desc" [width]="70"></dxi-column>
+    <dxi-column dataField="codigo"></dxi-column>
+    <dxi-column dataField="nome"></dxi-column>
+  </dx-data-grid>
+</div>
+
+

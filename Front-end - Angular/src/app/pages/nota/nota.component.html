@@ -1,0 +1,54 @@
+<dx-data-grid id="gridContainerNota" [dataSource]="notas"  keyExpr="id" [showBorders]="true"
+(onRowInserting)="adicionarNota($event)"   (onEditingStart)="carregarItens($event)">
+
+  <dxo-editing mode="popup" [allowAdding]="true" [allowUpdating]="true"  [allowDeleting]="true" [confirmDelete]="true">
+    <dxo-popup title="Cadastro Nota" [showTitle]="true"  [width]="700" [height]="500"></dxo-popup>
+    <dxo-form>
+
+      <dxi-item itemType="group" [colCount]="2" [colSpan]="2">
+        <dxi-item dataField="cliente" editorType="dxSelectBox" [editorOptions]="{ items: clientes,  displayExpr:'nome', key: 'id'}"  > </dxi-item>
+        <dxi-item dataField="dataEmissao" caption="Emissão" ></dxi-item>
+      </dxi-item>
+      <dxi-item dataField="itens" template="gridItensTemplate" [colCount]="4" [colSpan]="2"> </dxi-item>
+
+      <div *dxTemplate="let data of 'gridItensTemplate'">
+        <dx-data-grid id="gridContainerItem" [(dataSource)]="data.value" keyExpr="id" [showBorders]="true" (onRowInserting)="adicionarNota($event)" >
+          <dxo-load-panel [enabled]="true"></dxo-load-panel>
+          <dxo-editing  mode="popup" [allowAdding]="true"  [allowDeleting]="true">
+
+          </dxo-editing>
+
+          <dxi-column dataField="id" caption="item" [width]="70" cellTemplate=""></dxi-column>
+          <dxi-column dataField="sequencial"></dxi-column>
+          <dxi-column dataField="produto.id" caption="Produto"></dxi-column>
+          <dxi-column dataField="quantidade"> </dxi-column>
+          <dxi-column dataField="valorTotalitem"> </dxi-column>
+          <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
+          <div *dxTemplate="let nota of 'detail'">
+            <div class="master-detail-caption">Itens:</div>
+            <app-detail-notas [key]="nota.data.id" ></app-detail-notas>
+          </div>
+        </dx-data-grid>
+      </div>
+    </dxo-form>
+  </dxo-editing>
+
+  <dxi-column dataField="id" [width]="70" caption="NF"></dxi-column>
+  <dxi-column dataField="cliente" caption="Cliente">
+    <dxo-lookup  [dataSource]="clientes"  valueExpr="id" displayExpr="nome"> </dxo-lookup>
+    <dxi-validation-rule type="required"></dxi-validation-rule>
+  </dxi-column>
+  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy">
+    <dxi-validation-rule type="required"></dxi-validation-rule>
+  </dxi-column>
+  <dxi-column dataField="valorTotal" caption="Valor" format="R$ #,##0.00"></dxi-column>
+  <dxi-column dataField="itens" [visible]="false" ></dxi-column>
+
+  <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
+  <div *dxTemplate="let nota of 'detail'">
+    <div class="master-detail-caption">Itens:</div>
+    <app-detail-notas [key]="nota.data.id" ></app-detail-notas>
+  </div>
+</dx-data-grid>
+
+​

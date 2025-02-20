@@ -1,0 +1,33 @@
+<div id="data-grid-produto">
+  <dx-data-grid id="gridContainer"
+  [dataSource]="produtos"
+  keyExpr="id"
+  [showBorders]="true"
+  (onRowInserting)="adicionarProduto($event)"
+  (onRowRemoving)="removerProduto($event)"
+  (onRowUpdated)="atualizarProduto($event)">
+
+  <dxo-paging [enabled]="true" [pageSize]="15"></dxo-paging>
+  <dxo-pager [visible]="true"></dxo-pager>
+  <dxo-header-filter [visible]="true"></dxo-header-filter>
+  <dxo-search-panel [visible]="true"></dxo-search-panel>
+  <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true" [allowDeleting]="true" [confirmDelete]="true">
+    <dxo-popup title="Cadastro Produto" [showTitle]="true"  [width]="700" [height]="300"></dxo-popup>
+      <dxo-form >
+        <dxi-item itemType="group" [colCount]="2" [colSpan]="2">
+          <dxi-item dataField="codigo" ></dxi-item>
+          <dxi-item dataField="descricao"></dxi-item>
+          <dxi-item dataField="valorUnitario"> </dxi-item>
+
+      </dxi-item>
+    </dxo-form>
+  </dxo-editing>
+
+    <dxi-column dataField="id" sortOrder="desc" [width]="70"></dxi-column>
+    <dxi-column dataField="codigo"></dxi-column>
+    <dxi-column dataField="descricao"></dxi-column>
+    <dxi-column dataField="valorUnitario" format="R$ #,##0.00" ></dxi-column>
+  </dx-data-grid>
+</div>
+
+
