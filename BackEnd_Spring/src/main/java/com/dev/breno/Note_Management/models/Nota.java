@@ -16,27 +16,34 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 
 @Entity
+@JsonIdentityInfo()
 public class Nota {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	@ManyToOne @NotNull
+
+	@ManyToOne
 	private Cliente cliente;
+
 	private LocalDate dataEmissao;
+
 	private BigDecimal valorTotal;
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "nota") @NotNull
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "nota")
 	private List<Item> itens = new ArrayList<>();
-	
+
+
+
+
 	public Nota() {}
-	public Nota( Cliente cliente,String dataEmissao,  BigDecimal valorTotal, List<Item> itens) {
-		this.dataEmissao =LocalDate.parse(dataEmissao);
-		this.cliente = cliente;
-		this.dataEmissao = LocalDate.now();
-		this.valorTotal = valorTotal;
-		this.itens = itens;
-	}
+
+
+
+
+
 
 	public long getId() {
 		return id;

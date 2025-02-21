@@ -50,11 +50,8 @@ public class NotaController {
 	public ItemRepository itemRepository;
 
 	@GetMapping
-	public List<Nota> listarTodas(String cliente, String dataEmissao) {
-			List<Nota> notas;
-			if (cliente == null && dataEmissao == null)notas = notaRepository.findAll();
-			else notas = notaRepository.findAll(Specification.where(SpecificationNota.clienteNome(cliente))
-						.or(SpecificationNota.dataEmissao(DataUtil.converterEmLocalDate(dataEmissao))));
+	public List<Nota> listarTodas() {
+			List<Nota> notas = notaRepository.findAll();
 			return notas;
 	}
 

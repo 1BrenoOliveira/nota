@@ -10,23 +10,30 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Item {
+
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-	@NotNull
-	private String sequencial;
-	@ManyToOne @NotNull
-	private Produto produto;
-	@Min(value = 1)
-	private int quantidade;
-	private BigDecimal valorTotalItem;
-	@JsonIgnore
+
 	@ManyToOne
 	private Nota nota;
-	
+
+	private String sequencial;
+
+	@ManyToOne
+	private Produto produto;
+
+	private int quantidade;
+
+	private BigDecimal valorTotalItem;
+
+
+
+
 	public long getId() {
 		return id;
 	}

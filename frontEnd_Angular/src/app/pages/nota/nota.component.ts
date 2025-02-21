@@ -1,14 +1,11 @@
-import { ProdutoService } from './../../shared/services/produto.service';
-import { CommonModule } from '@angular/common';
-import { Component, NgModule, OnInit } from '@angular/core';
-import {  DxDataGridModule, DxTabPanelModule, DxTemplateModule } from 'devextreme-angular';
-import { Nota } from '../../shared/models/Nota';
-import { NotaService } from '../../shared/services/nota.service';
-import { ClienteService } from '../../shared/services/cliente.service';
-import { Produto } from '../../shared/models/Produto';
-import { Cliente } from '../../shared/models/Cliente';
-import { DetailNotasComponent } from './detail-notas/detail-notas.component';
-import { Item } from '../../shared/models/Item';
+import {ProdutoService} from './../../shared/services/produto.service';
+import {Nota} from '../../shared/models/Nota';
+import {NotaService} from '../../shared/services/nota.service';
+import {ClienteService} from '../../shared/services/cliente.service';
+import {Produto} from '../../shared/models/Produto';
+import {Cliente} from '../../shared/models/Cliente';
+import {DetailNotasComponent} from './detail-notas/detail-notas.component';
+import {Item} from '../../shared/models/Item';
 
 
 @Component({
