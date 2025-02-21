@@ -1,17 +1,12 @@
 package com.dev.breno.Note_Management.controllers;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +23,6 @@ import com.dev.breno.Note_Management.forms.ClienteForm;
 import com.dev.breno.Note_Management.models.Cliente;
 import com.dev.breno.Note_Management.repostiories.ClienteRepository;
 import com.dev.breno.Note_Management.specifications.SpecificationCliente;
-import com.dev.breno.Note_Management.util.PaginacaoUtil;
 
 @RestController
 @RequestMapping("/cliente")
@@ -39,8 +33,7 @@ public class ClienteController {
 	private ClienteRepository clienteRepository;
 
 	@GetMapping
-	public ResponseEntity<Page<ClienteDto>> buscarTodos(String page, String size, String nome, String codigo){
-		Pageable pageable = PaginacaoUtil.gerarPageable(page, size);
+	public List<ClienteDto> buscarTodos(String nome, String codigo){
 		List<Cliente> clientes ;
 		if(nome==null&&codigo==null) {
 			clientes = clienteRepository.findAll();
@@ -49,45 +42,39 @@ public class ClienteController {
 					SpecificationCliente.nome(nome)
 					.or(SpecificationCliente.codigo(codigo))));
 		}
-		
-		Page<ClienteDto> pageClientes = new PageImpl<>(ClienteDto.converter(clientes), pageable, clientes.size());
-		return  ResponseEntity.ok().body(pageClientes);
+		return ClienteDto.converter(clientes);
 	}
 	
 	@PostMapping
-	public ResponseEntity<ClienteDto> cadastrar(@RequestBody @Valid ClienteForm form, UriComponentsBuilder uriBuilder){
+	public ClienteDto cadastrar(@RequestBody @Valid ClienteForm form, UriComponentsBuilder uriBuilder){
 		Cliente cliente = form.converteEmCliente();
-		clienteRepository.save(cliente);
-		
-		URI uri = uriBuilder.path("/cliente/{id}").buildAndExpand(cliente.getId()).toUri();
-		
-		return ResponseEntity.created(uri).body(new ClienteDto(cliente));
+		Cliente clienteSalvo = clienteRepository.save(cliente);
+		return new ClienteDto(clienteSalvo);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<ClienteDto> detalhes(@PathVariable("id") long id){
+	public ClienteDto detalhes(@PathVariable("id") long id){
 		Optional<Cliente> optional = clienteRepository.findById(id);
-		if(optional.isPresent())return ResponseEntity.ok(new ClienteDto(optional.get()));
-		return ResponseEntity.notFound().build();
+		if(optional.isPresent() )return new ClienteDto(optional.get());
+		return null;
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<ClienteDto> alterar(@PathVariable("id") long id, @RequestBody  ClienteForm form){
+	public ClienteDto alterar(@PathVariable("id") long id, @RequestBody  ClienteForm form){
 		Optional<Cliente> optional = clienteRepository.findById(id);
 		if(optional.isPresent()){
 			Cliente cliente = optional.get();
 			if(form.getCodigo()!=null )cliente.setCodigo(form.getCodigo());
 			if(form.getNome()!=null )cliente.setNome(form.getNome());
 			clienteRepository.save(cliente);
-			return ResponseEntity.ok(new ClienteDto(cliente));
+			return new ClienteDto(cliente);
 		}
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> remover(@PathVariable("id") long id){
+	public void remover(@PathVariable("id") long id){
 		clienteRepository.deleteById(id);
-		return ResponseEntity.ok().build();
 	}
 	
 	

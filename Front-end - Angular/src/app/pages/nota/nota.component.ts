@@ -46,26 +46,24 @@ export class NotaComponent implements OnInit {
 
   private listarClientes(){
     this.clienteService.listar().subscribe(dados=>{
-      this.clientes = dados.content;
+      this.clientes = dados;
     })
   }
   private listarProdutos(){
     this.produtoService.listar().subscribe(dados=>{
-      this.produtos = dados.content;
+      this.produtos = dados;
     })
   }
 
   private listarTodasAsNotas(){
     this.notaService.listar().subscribe(dados=>{
-      for(let nota of dados.content){
-        let data = nota.dataEmissao;
+      for(let nota of dados){
         nota.head_id = 0;
-        nota.dataEmissao = new Date(data.substring(6,10), (data.substring(3,5))-1, data.substring(0,2) );
         for( let item of nota.itens) {
           item.head_id = nota.id;
         }
       }
-      this.notas = dados.content;
+      this.notas = dados;
     })
   }
 

@@ -33,7 +33,7 @@
     </dxo-form>
   </dxo-editing>
 
-  <dxi-column dataField="id" [width]="70" caption="NF"></dxi-column>
+  <dxi-column dataField="id" [width]="70" caption="NF" sortOrder="desc"></dxi-column>
   <dxi-column dataField="cliente" caption="Cliente">
     <dxo-lookup  [dataSource]="clientes"  valueExpr="id" displayExpr="nome"> </dxo-lookup>
     <dxi-validation-rule type="required"></dxi-validation-rule>

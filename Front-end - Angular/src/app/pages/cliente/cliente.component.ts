@@ -23,9 +23,8 @@ export class ClienteComponent implements OnInit {
 
   listar(){
     this.clienteService.listar().subscribe(dados=> {
-      this.clientes = dados.content;
-    }
-    );
+      this.clientes = dados;
+    });
   }
 
   adicionarCliente(e){

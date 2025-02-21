@@ -3,9 +3,6 @@ package com.dev.breno.Note_Management.controllers;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -13,10 +10,6 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,9 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.dev.breno.Note_Management.dtos.ErroDevalidacaoDto;
-import com.dev.breno.Note_Management.dtos.NotaDto;
-import com.dev.breno.Note_Management.forms.ItemForm;
-import com.dev.breno.Note_Management.forms.NotaForm;
 import com.dev.breno.Note_Management.models.Cliente;
 import com.dev.breno.Note_Management.models.Item;
 import com.dev.breno.Note_Management.models.Nota;
@@ -44,7 +34,6 @@ import com.dev.breno.Note_Management.repostiories.NotaRepository;
 import com.dev.breno.Note_Management.repostiories.ProdutoRepository;
 import com.dev.breno.Note_Management.specifications.SpecificationNota;
 import com.dev.breno.Note_Management.util.DataUtil;
-import com.dev.breno.Note_Management.util.PaginacaoUtil;
 
 @RestController
 @RequestMapping("/nota")
@@ -61,22 +50,12 @@ public class NotaController {
 	public ItemRepository itemRepository;
 
 	@GetMapping
-	public ResponseEntity<?> listarTodas(String page, String size, String cliente, String dataEmissao) {
-		PageRequest pageable = PaginacaoUtil.gerarPageable(page, size);
-		try {
-			if (cliente == null && dataEmissao == null) {
-				Page<Nota> notas = notaRepository.findAll(pageable);
-				return ResponseEntity.ok().body(notas);
-			} else {
-				List<Nota> notas = notaRepository.findAll(Specification.where(SpecificationNota.clienteNome(cliente))
+	public List<Nota> listarTodas(String cliente, String dataEmissao) {
+			List<Nota> notas;
+			if (cliente == null && dataEmissao == null)notas = notaRepository.findAll();
+			else notas = notaRepository.findAll(Specification.where(SpecificationNota.clienteNome(cliente))
 						.or(SpecificationNota.dataEmissao(DataUtil.converterEmLocalDate(dataEmissao))));
-				return ResponseEntity.ok().body(new PageImpl<>(notas, pageable, notas.size()));
-			}
-		} catch (DateTimeParseException e) {
-			ErroDevalidacaoDto erro = new ErroDevalidacaoDto("Data Emissão",
-					"A data de emissão precisa estar no formato 'dd-MM-yyyy'");
-			return ResponseEntity.badRequest().body(erro);
-		}
+			return notas;
 	}
 
 	@PostMapping
@@ -139,15 +118,6 @@ public class NotaController {
 					return ResponseEntity.badRequest().body(erro);
 				}
 			}
-			/*if (form.getDataEmissao() != null) {
-				try {
-					nota.setDataEmissao(form.getDataEmissao());
-				} catch (Exception e) {
-					ErroDevalidacaoDto erro = new ErroDevalidacaoDto("dataEmissao",
-							"A data deve estar no padrao 'dd-MM-yyyy'");
-					return ResponseEntity.badRequest().body(erro);
-				}
-			}*/
 			notaRepository.save(nota);
 			return ResponseEntity.ok().body(nota);
 		}

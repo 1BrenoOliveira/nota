@@ -17,7 +17,7 @@ export class CrudService<T> {
   constructor(protected http: HttpClient, @Inject(String)  private API_URL: string) { }
 
   listar(){
-    return this.http.get<PageResponse>(this.API_URL).pipe(take(1));
+    return this.http.get<T[]>(this.API_URL).pipe(take(1));
   }
   buscarRegistry(id: number){
     return this.http.get<T>(`${this.API_URL}/${id}`).pipe(take(1));

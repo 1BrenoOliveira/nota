@@ -40,8 +40,7 @@ public class ProdutoController {
 	private ProdutoRepository produtoRepository;
 	
 	@GetMapping
-	public ResponseEntity<Page<ProdutoDto>> listarTodos(String page, String size, String codigo, String descricao){
-		Pageable pageable = PaginacaoUtil.gerarPageable(page, size);
+	public List<ProdutoDto> listarTodos( String codigo, String descricao){
 		List<Produto> produtos;
 		if(codigo==null && descricao==null) {
 			produtos = produtoRepository.findAll();
@@ -50,30 +49,25 @@ public class ProdutoController {
 					SpecificationProduto.codigo(codigo))
 					.or(SpecificationProduto.descricao(descricao)));
 		}
-		Page<ProdutoDto> pageDto = new PageImpl<>( ProdutoDto.converter(produtos), pageable, produtos.size());
-		return ResponseEntity.ok(pageDto);
+		return  ProdutoDto.converter(produtos);
 	}
 	
 	@PostMapping
-	public ResponseEntity<ProdutoDto> cadastrar(@RequestBody @Valid ProdutoForm form, UriComponentsBuilder uriBuilder){
+	public ProdutoDto cadastrar(@RequestBody @Valid ProdutoForm form, UriComponentsBuilder uriBuilder){
 		Produto produto = form.converter();
 		produtoRepository.save(produto);
-		
-		URI uri = uriBuilder.path("/produto/{id}").buildAndExpand(produto.getId()).toUri();
-		return ResponseEntity.created(uri).body(new ProdutoDto(produto));
+		return new ProdutoDto(produto);
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<ProdutoDto> detalhar(@PathVariable ("id") long id){
+	public ProdutoDto detalhar(@PathVariable ("id") long id){
 		Optional<Produto> optional = produtoRepository.findById(id);
-		if(optional.isPresent()) {
-			return ResponseEntity.ok(new ProdutoDto(optional.get()));
-		}
-		return ResponseEntity.notFound().build();
+		if(optional.isPresent()) return new ProdutoDto(optional.get());
+		return null;
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<ProdutoDto> atualizar(@PathVariable("id") long id, @RequestBody ProdutoForm form){
+	public ProdutoDto atualizar(@PathVariable("id") long id, @RequestBody ProdutoForm form){
 		Optional<Produto> optional = produtoRepository.findById(id);
 		if(optional.isPresent()) {
 			Produto produto = optional.get();
@@ -81,14 +75,13 @@ public class ProdutoController {
 			if(form.getDescricao()!=null)produto.setDescricao(form.getDescricao());
 			if(form.getValorUnitario()!=null) produto.setValorUnitario(new BigDecimal(form.getValorUnitario()));
 			produtoRepository.save(produto);
-			return ResponseEntity.ok(new ProdutoDto(produto));
+			return new ProdutoDto(produto);
 		}
-		return ResponseEntity.notFound().build();
+		return null;
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deletar(@PathVariable("id") long id){
+	public void deletar(@PathVariable("id") long id){
 		produtoRepository.deleteById(id);
-		return ResponseEntity.ok().build();
 	}
 }

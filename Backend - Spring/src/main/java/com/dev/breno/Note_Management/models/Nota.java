@@ -24,7 +24,6 @@ public class Nota {
 	private long id;
 	@ManyToOne @NotNull
 	private Cliente cliente;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private LocalDate dataEmissao;
 	private BigDecimal valorTotal;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "nota") @NotNull
@@ -32,8 +31,7 @@ public class Nota {
 	
 	public Nota() {}
 	public Nota( Cliente cliente,String dataEmissao,  BigDecimal valorTotal, List<Item> itens) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-		this.dataEmissao =LocalDate.parse(dataEmissao, formatter);
+		this.dataEmissao =LocalDate.parse(dataEmissao);
 		this.cliente = cliente;
 		this.dataEmissao = LocalDate.now();
 		this.valorTotal = valorTotal;

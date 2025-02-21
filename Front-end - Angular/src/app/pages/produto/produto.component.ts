@@ -21,7 +21,7 @@ export class ProdutoComponent implements OnInit{
 
   ngOnInit(): void {
     this.produtoService.listar().subscribe(dados =>{
-     this.produtos = dados.content;
+     this.produtos = dados;
     })
   }
 
