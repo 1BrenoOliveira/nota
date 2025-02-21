@@ -14,20 +14,27 @@ export class CrudService<T> {
     })
   }
 
-  constructor(protected http: HttpClient, @Inject(String)  private API_URL: string) { }
+  constructor(protected http: HttpClient,
+              @Inject(String)
+              private API_URL: string) { }
 
   listar(){
-    return this.http.get<T[]>(this.API_URL).pipe(take(1));
+    return this.http.get<T[]>(this.API_URL)
+      .pipe(take(1));
   }
+
   buscarRegistry(id: number){
     return this.http.get<T>(`${this.API_URL}/${id}`).pipe(take(1));
    }
+
   criarNovo(registry){
     return this.http.post<T>(this.API_URL, registry, this.httpOptions).pipe(take(1));
   }
+
   atualizar(registry){
     return this.http.put<T>(`${this.API_URL}/${registry.id}`, registry).pipe(take(1));
   }
+
   deletar(idRegistry: number){
     return this.http.delete(`${this.API_URL}/${ idRegistry}`).pipe(take(1));
   }

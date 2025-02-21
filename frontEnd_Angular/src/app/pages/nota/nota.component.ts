@@ -6,6 +6,7 @@ import {Produto} from '../../shared/models/Produto';
 import {Cliente} from '../../shared/models/Cliente';
 import {DetailNotasComponent} from './detail-notas/detail-notas.component';
 import {Item} from '../../shared/models/Item';
+import {Component, OnInit} from "@angular/core";
 
 
 @Component({
@@ -23,8 +24,7 @@ export class NotaComponent implements OnInit {
   constructor(
     private notaService: NotaService,
     private clienteService: ClienteService,
-    private produtoService: ProdutoService,
-  ){
+    private produtoService: ProdutoService){
 
   }
 
@@ -54,12 +54,6 @@ export class NotaComponent implements OnInit {
 
   private listarTodasAsNotas(){
     this.notaService.listar().subscribe(dados=>{
-      for(let nota of dados){
-        nota.head_id = 0;
-        for( let item of nota.itens) {
-          item.head_id = nota.id;
-        }
-      }
       this.notas = dados;
     })
   }
