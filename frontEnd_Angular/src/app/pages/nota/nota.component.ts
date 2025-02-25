@@ -1,4 +1,3 @@
-import {ProdutoService} from './../../shared/services/produto.service';
 import {Nota} from '../../shared/models/Nota';
 import {NotaService} from '../../shared/services/nota.service';
 import {ClienteService} from '../../shared/services/cliente.service';
@@ -6,7 +5,14 @@ import {Produto} from '../../shared/models/Produto';
 import {Cliente} from '../../shared/models/Cliente';
 import {DetailNotasComponent} from './detail-notas/detail-notas.component';
 import {Item} from '../../shared/models/Item';
-import {Component, OnInit} from "@angular/core";
+import {Component, NgModule, OnInit} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {DevExtremeModule, DxDataGridModule, DxTabPanelModule, DxTemplateModule} from "devextreme-angular";
+import {ProdutoService} from "../../shared/services/produto.service";
+import {makeBindingParser} from "@angular/compiler";
+import {
+  signalModelTransform
+} from "@angular/compiler-cli/src/transformers/jit_transforms/initializer_api_transforms/model_function";
 
 
 @Component({
@@ -15,7 +21,7 @@ import {Component, OnInit} from "@angular/core";
   styleUrl: './nota.component.scss'
 })
 export class NotaComponent implements OnInit {
-
+  nota: Nota;
   notas: Nota[];
   produtos: Produto[];
   clientes: Cliente[];
@@ -32,13 +38,6 @@ export class NotaComponent implements OnInit {
     this.listarTodasAsNotas();
     this.listarClientes();
     this.listarProdutos();
-  }
-
-  carregarItens(e){
-    this.notaService.buscarRegistry(e.data.id).subscribe(dados=>{
-      this.itens = dados.itens;
-      console.log(this.itens);
-    })
   }
 
   private listarClientes(){
@@ -59,11 +58,20 @@ export class NotaComponent implements OnInit {
   }
 
   adicionarNota(e){
+    console.log("Adicionar Nota:")
     console.log(e.data);
   }
 
+  carregarItens(e){
+    this.itens = e.data.itens;
+  }
 
-
+  mostrar(e){
+    console.log(e);
+  }
+  testarNota(){
+    console.log("Nota: " + this.nota);
+  }
 }
 
 @NgModule({
@@ -71,7 +79,8 @@ export class NotaComponent implements OnInit {
     CommonModule,
     DxDataGridModule,
     DxTemplateModule,
-    DxTabPanelModule
+    DxTabPanelModule,
+    DevExtremeModule
   ],
   declarations: [NotaComponent, DetailNotasComponent],
   bootstrap: [NotaComponent]

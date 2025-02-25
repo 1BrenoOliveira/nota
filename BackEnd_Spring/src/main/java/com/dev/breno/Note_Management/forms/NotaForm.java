@@ -1,6 +1,7 @@
 package com.dev.breno.Note_Management.forms;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +52,11 @@ public class NotaForm {
 				valorTotal.add(item.getValorTotalItem());
 			}
 		}
-		return new Nota(cliente,dataEmissao, valorTotal, lista);
+		Nota novaNota = new Nota();
+		novaNota.setCliente(cliente);
+		novaNota.setDataEmissao(LocalDate.parse(dataEmissao));
+		novaNota.setValorTotal(valorTotal);
+		novaNota.setItens(lista);
+		return novaNota;
 	}
 }

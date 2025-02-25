@@ -1,8 +1,11 @@
 <dx-data-grid id="gridContainerNota"
               [dataSource]="notas"
-              keyExpr="id" [showBorders]="true"
+              keyExpr="id"
+              [showBorders]="true"
               (onRowInserting)="adicionarNota($event)"
-              (onEditingStart)="carregarItens($event)">
+              (onEditingStart)="carregarItens($event)"
+              (onRowUpdated)="mostrar($event)">
+
 
   <dxo-editing mode="popup"
                [allowAdding]="true"
@@ -13,64 +16,49 @@
     <dxo-popup title="Cadastro Nota" [showTitle]="true"  [width]="700" [height]="500"></dxo-popup>
 
     <dxo-form [colCount]="2">
-
-      <dxi-item dataField="cliente" editorType="dxSelectBox" [editorOptions]="{ items: clientes,  displayExpr:'nome', key: 'id'}"  > </dxi-item>
+      <dxi-item dataField="cliente"></dxi-item>
       <dxi-item dataField="dataEmissao" caption="Emissão" ></dxi-item>
-      <dxi-item dataField="itens" template="gridItensTemplate" [colSpan]="2"> </dxi-item>
-
+      <dxi-item itemType="group" [colSpan]="2" >
+        <dxi-item dataField="itens" template="gridItensTemplate"></dxi-item>
+      </dxi-item>
       <div *dxTemplate="let data of 'gridItensTemplate'">
         <dx-data-grid id="gridContainerItem"
-                      [(dataSource)]="data.value"
+                      [dataSource]="data.value"
                       keyExpr="id"
                       [showBorders]="true"
-                      (onRowInserting)="adicionarNota($event)" >
-
-          <dxo-load-panel [enabled]="true"></dxo-load-panel>
-
-          <dxo-editing  mode="row"
-                        [allowAdding]="true"
-                        [allowDeleting]="true">
-
-          </dxo-editing>
-
-          <dxi-column dataField="id" caption="item" [width]="70" cellTemplate=""></dxi-column>
-          <dxi-column dataField="sequencial"></dxi-column>
+                      (onRowInserting)="adicionarNota($event)"
+                      >
+          <dxo-editing  mode="row" [allowAdding]="true" [allowDeleting]="true"> </dxo-editing>
+          <dxi-column dataField="sequencial" ></dxi-column>
           <dxi-column dataField="produto" caption="Produto" cellTemplate="produtoCellTemplate" editCellTemplate="produtoEditCellTemplate"></dxi-column>
           <dxi-column dataField="quantidade"> </dxi-column>
-          <dxi-column dataField="valorTotalitem"> </dxi-column>
+          <dxi-column dataField="valorTotalItem"> </dxi-column>
 
-          <div *dxTemplate="let data of 'produtoCellTemplate'">{{data.value ? data.value.descricao : "não tem"}}</div>
+          <div *dxTemplate="let data of 'produtoCellTemplate'">{{data.data.value ? data.value.descricao : "não tem"}}</div>
           <div *dxTemplate="let data of 'produtoEditCellTemplate'">
             <dx-select-box [items]="produtos"
                            displayExpr="descricao"
-                           [(value)]="data.value">
+                           [(value)]="data.data.value" >
             </dx-select-box>
           </div>
 
 
         </dx-data-grid>
       </div>
-    </dxo-form>
+    </dxo-form >
+
   </dxo-editing>
 
-  <dxi-column dataField="id" [width]="70" caption="NF" sortOrder="desc"></dxi-column>
-  <dxi-column dataField="cliente" caption="Cliente">
-    <dxo-lookup  [dataSource]="clientes"  valueExpr="id" displayExpr="nome"> </dxo-lookup>
-    <dxi-validation-rule type="required"></dxi-validation-rule>
-  </dxi-column>
-  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy">
-    <dxi-validation-rule type="required"></dxi-validation-rule>
-  </dxi-column>
+  <dxi-column dataField="id" [width]="70" caption="NF" sortOrder="asc" > </dxi-column><
+  <dxi-column dataField="cliente" caption="Cliente" cellTemplate="clienteCellTemplate" editCellTemplate="editClienteCellTemplate"></dxi-column>
+  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy"></dxi-column>
   <dxi-column dataField="valorTotal" caption="Valor" format="R$ #,##0.00"></dxi-column>
   <dxi-column dataField="itens" [visible]="false" ></dxi-column>
 
-<!--
-  <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
-  <div *dxTemplate="let nota of 'detail'">
-    <div class="master-detail-caption">Itens:</div>
-    <app-detail-notas [key]="nota.data.id" ></app-detail-notas>
-  </div>
--->
-</dx-data-grid>
+  <div *dxTemplate="let data of 'clienteCellTemplate'" > {{ data.value  ? data.value.nome : ""}}</div>
+  <div *dxTemplate="let data of 'editClienteCellTemplate'" >
+    <dx-select-box  [dataSource]="clientes" displayExpr="nome" [(value)]="data.data.cliente" (click)="mostrar(data.data.cliente)">
 
-​
+    </dx-select-box>
+  </div>
+</dx-data-grid>
