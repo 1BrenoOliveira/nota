@@ -1,6 +1,8 @@
 package com.dev.breno.Note_Management.forms;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +18,37 @@ import com.dev.breno.Note_Management.repostiories.ProdutoRepository;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class NotaForm {
+
 	@NotEmpty @NotNull
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+
 	private String dataEmissao;
+
 	@NotEmpty @NotNull
 	private String cliente;
+
 	private List<ItemForm> itens = new ArrayList<>();
-	
+
+
+	public Nota converte(Cliente cliente, ProdutoRepository produtoRepository) throws NotFoundException {
+		BigDecimal valorTotal = new BigDecimal(0.0);
+		List<Item> lista = ItemForm.converteEmListaItens(itens, produtoRepository);
+		if(!lista.isEmpty()) {
+			for (Item item : lista) {
+				valorTotal.add(item.getValorTotalItem());
+			}
+		}
+
+		//new Nota(cliente,dataEmissao, valorTotal, lista);
+		Nota nota = new Nota();
+		nota.setCliente(cliente);
+		nota.setDataEmissao(LocalDate.parse(dataEmissao, DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+		nota.setValorTotal(valorTotal);
+		nota.setItens(lista);
+		return nota;
+	}
+
+
 	public String getCliente() {
 		return cliente;
 	}
@@ -42,15 +68,5 @@ public class NotaForm {
 	}
 	public void setDataEmissao(String dataEmissao) {
 		this.dataEmissao = dataEmissao;
-	}
-	public Nota converte(Cliente cliente, ProdutoRepository produtoRepository) throws NotFoundException {
-		BigDecimal valorTotal = new BigDecimal(0.0);
-		List<Item> lista = ItemForm.converteEmListaItens(itens, produtoRepository);
-		if(!lista.isEmpty()) {
-			for (Item item : lista) {
-				valorTotal.add(item.getValorTotalItem());
-			}
-		}
-		return new Nota(cliente,dataEmissao, valorTotal, lista);
 	}
 }

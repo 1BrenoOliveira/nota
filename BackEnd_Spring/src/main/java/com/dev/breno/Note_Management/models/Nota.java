@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 
 @Entity
-@JsonIdentityInfo()
 public class Nota {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
