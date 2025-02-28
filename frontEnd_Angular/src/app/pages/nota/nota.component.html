@@ -1,10 +1,14 @@
+
 <dx-data-grid id="gridContainerNota"
-              [dataSource]="notas"
+              [(dataSource)]="notas"
               keyExpr="id"
               [showBorders]="true"
-              (onRowInserting)="adicionarNota($event)"
-              (onEditingStart)="carregarItens($event)"
-              (onRowUpdated)="mostrar($event)">
+              (onInitNewRow)="iniciarItens($event)"
+              (onSaving)="validarNotaPossuiItem($event)"
+              (onEditingStart)="registrarEstadoNota($event)"
+              (onEditCanceling)="cancelarEdicaoNota($event)"
+              (onSaved)="salvarRegistro($event)"
+             >
 
 
   <dxo-editing mode="popup"
@@ -12,53 +16,112 @@
                [allowUpdating]="true"
                [allowDeleting]="true"
                [confirmDelete]="true">
+    <dxo-texts
+      confirmDeleteTitle="Excluir Nota?"
+      confirmDeleteMessage="Tem certeza que deseja excluir está Nota? Será excluida permanentemente..."
+    >
+    </dxo-texts>
 
-    <dxo-popup title="Cadastro Nota" [showTitle]="true"  [width]="700" [height]="500"></dxo-popup>
+    <dxo-popup title="Cadastro Nota"
+               [showTitle]="true"
+               [width]="700" [height]="500"
+               [showCloseButton]="false"></dxo-popup>
 
-    <dxo-form [colCount]="2">
+    <dxo-form [colCount]="2"  >
+      <dxi-item [visible]="isErroItensVisible" template="messageErro" [colSpan]="2"></dxi-item>
       <dxi-item dataField="cliente"></dxi-item>
       <dxi-item dataField="dataEmissao" caption="Emissão" ></dxi-item>
-      <dxi-item itemType="group" [colSpan]="2" >
-        <dxi-item dataField="itens" template="gridItensTemplate"></dxi-item>
+      <dxi-item itemType="group" caption="Itens:" [colSpan]="2">
+        <dxi-item dataField="itens" ></dxi-item>
       </dxi-item>
-      <div *dxTemplate="let data of 'gridItensTemplate'">
-        <dx-data-grid id="gridContainerItem"
-                      [dataSource]="data.value"
-                      keyExpr="id"
-                      [showBorders]="true"
-                      (onRowInserting)="adicionarNota($event)"
-                      >
-          <dxo-editing  mode="row" [allowAdding]="true" [allowDeleting]="true"> </dxo-editing>
-          <dxi-column dataField="sequencial" ></dxi-column>
-          <dxi-column dataField="produto" caption="Produto" cellTemplate="produtoCellTemplate" editCellTemplate="produtoEditCellTemplate"></dxi-column>
-          <dxi-column dataField="quantidade"> </dxi-column>
-          <dxi-column dataField="valorTotalItem"> </dxi-column>
-
-          <div *dxTemplate="let data of 'produtoCellTemplate'">{{data.data.value ? data.value.descricao : "não tem"}}</div>
-          <div *dxTemplate="let data of 'produtoEditCellTemplate'">
-            <dx-select-box [items]="produtos"
-                           displayExpr="descricao"
-                           [(value)]="data.data.value" >
-            </dx-select-box>
-          </div>
-
-
-        </dx-data-grid>
-      </div>
     </dxo-form >
 
   </dxo-editing>
 
-  <dxi-column dataField="id" [width]="70" caption="NF" sortOrder="asc" > </dxi-column><
-  <dxi-column dataField="cliente" caption="Cliente" cellTemplate="clienteCellTemplate" editCellTemplate="editClienteCellTemplate"></dxi-column>
-  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy"></dxi-column>
-  <dxi-column dataField="valorTotal" caption="Valor" format="R$ #,##0.00"></dxi-column>
-  <dxi-column dataField="itens" [visible]="false" ></dxi-column>
+  <dxi-column dataField="id" [width]="70" caption="NF" sortOrder="desc" > </dxi-column><
+  <dxi-column dataField="cliente" caption="Cliente" cellTemplate="clienteCellTemplate" editCellTemplate="editClienteCellTemplate">
+    <dxi-validation-rule type="required"></dxi-validation-rule>
+  </dxi-column>
+  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy" >
+    <dxi-validation-rule type="required"></dxi-validation-rule>
+  </dxi-column>
+  <dxi-column dataField="valorTotal" caption="Valor" format="R$ #,##0.00" editCellTemplate="dataEmissaoEditCellTemplate"></dxi-column>
+  <dxi-column dataField="itens" [visible]="false" editCellTemplate="gridItensTemplate">
+    <dxo-form-item >
+      <dxo-label [visible]="false"></dxo-label>
+    </dxo-form-item>
+  </dxi-column>
 
-  <div *dxTemplate="let data of 'clienteCellTemplate'" > {{ data.value  ? data.value.nome : ""}}</div>
+  <div *dxTemplate="let data of 'messageErro'">
+    <message-details message="É necessario adicionar pelo menos um Item" (ocultarComponent)="ocultarErroItens($event)"></message-details>
+  </div>
+
+  <div *dxTemplate="let data of 'clienteCellTemplate'">
+    {{ data.value  ? data.value.nome : ""}}
+  </div>
+
   <div *dxTemplate="let data of 'editClienteCellTemplate'" >
-    <dx-select-box  [dataSource]="clientes" displayExpr="nome" [(value)]="data.data.cliente" (click)="mostrar(data.data.cliente)">
-
+    <dx-select-box  [dataSource]="clientes"
+                    [searchEnabled]="true"
+                    displayExpr="nome"
+                    [value]="data.data.cliente"
+                    (valueChange)="setValorNoForm($event, data)"
+                   >
     </dx-select-box>
   </div>
+
+  <div *dxTemplate="let data of 'gridItensTemplate'" >
+    <dx-data-grid id="gridContainerItem"
+                  [(dataSource)]="data.value"
+                  [showBorders]="true"
+                  (dataSourceChange)="setValorNoForm($event, data)"
+                  (onRowInserted)="adicionarItem($event, data)"
+                  (onRowRemoving)="removerItem($event, data)"
+                  >
+      <dxo-editing  mode="form"
+                    [allowAdding]="true"
+                    [allowDeleting]="true">
+        <dxo-texts
+          confirmDeleteTitle="Excluir Item?"
+          confirmDeleteMessage="Tem certeza que deseja excluir este Item? Será excluido permanentemente..."
+
+        >
+        </dxo-texts>
+
+        <dxo-form>
+          <dxi-item dataField="sequencial"></dxi-item>
+          <dxi-item dataField="produto"></dxi-item>
+          <dxi-item dataField="quantidade" ></dxi-item>
+        </dxo-form>
+      </dxo-editing>
+      <dxi-column dataField="sequencial">
+        <dxi-validation-rule type="required"></dxi-validation-rule>
+      </dxi-column>
+      <dxi-column dataField="produto" caption="Produto" cellTemplate="produtoCellTemplate" editCellTemplate="produtoEditCellTemplate">
+        <dxi-validation-rule type="required"></dxi-validation-rule>
+      </dxi-column>
+      <dxi-column dataField="quantidade">
+        <dxi-validation-rule type="required"></dxi-validation-rule>
+      </dxi-column>
+      <dxi-column dataField="valorTotalItem" [width]="180"  format="R$ #,##0.00" > </dxi-column>
+      <dxo-summary>
+        <dxi-total-item column="valorTotalItem"  summaryType="sum" displayFormat="Total: {0}"  valueFormat="R$ #,##0.00">
+        </dxi-total-item>
+      </dxo-summary>
+      <div *dxTemplate="let data of 'produtoCellTemplate'">{{data.data.produto ? data.data.produto.descricao : "não tem"}}</div>
+      <div *dxTemplate="let data of 'produtoEditCellTemplate'">
+        <dx-select-box [dataSource]="produtos"
+                       displayExpr="descricao"
+                       [value]="data.data.produto"
+                       (valueChange)="setValorNoForm($event, data)" >
+        </dx-select-box>
+      </div>
+      <dxo-toolbar>
+        <dxi-item name="addRowButton" [options]="{ text: 'Adicionar'}"  showText="always"> </dxi-item>
+      </dxo-toolbar>
+    </dx-data-grid>
+  </div>
+  <dxo-toolbar>
+    <dxi-item name="addRowButton" [options]="{ text: 'Criar novo'}"  showText="always"> </dxi-item>
+  </dxo-toolbar>
 </dx-data-grid>

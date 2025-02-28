@@ -3,6 +3,7 @@ package com.dev.breno.Note_Management.controllers;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -114,8 +115,19 @@ public class NotaController {
 					ErroDevalidacaoDto erro = new ErroDevalidacaoDto("Cliente", "Este cliente não está registrado");
 					return ResponseEntity.badRequest().body(erro);
 				}
+				if(nota.getDataEmissao()!=null) {
+					nota.setDataEmissao(form.getDataEmissao());
+				}
+				if(form.getItens().isEmpty()) {
+					ErroDevalidacaoDto erro = new ErroDevalidacaoDto("Itens", "A Nota precisa ter pelo menos um item");
+					return ResponseEntity.badRequest().body(erro);
+				}
 			}
+
+			nota.setValorTotal(atualizarItensNaListaItens(nota, form));
 			notaRepository.save(nota);
+			setarNotaEmItens(nota);
+			itemRepository.saveAll(nota.getItens());
 			return ResponseEntity.ok().body(nota);
 		}
 		return ResponseEntity.notFound().build();
@@ -192,8 +204,10 @@ public class NotaController {
 	private void setarNotaEmItens(Nota nota) {
 		for (Item item : nota.getItens()) {
 			item.setNota(nota);
+
 		}
 	}
+
 
 	private BigDecimal carregarDadosItem(Nota nota) {
 		BigDecimal totalDaNota = new BigDecimal(0);
@@ -207,6 +221,38 @@ public class NotaController {
 		}
 		return totalDaNota;
 	}
-	
 
+
+	private BigDecimal atualizarItensNaListaItens(Nota nota, Nota form) {
+		List<Item> listaItensParaDeletar = new ArrayList<>();
+		BigDecimal totalDaNota = new BigDecimal(0);
+
+		for (Item item : nota.getItens()) {
+			if(!verificarItemExiste(item, form.getItens())) { //excluir itens que foram retirados
+				listaItensParaDeletar.add(item);
+			}else{
+				totalDaNota = totalDaNota.add(item.getValorTotalItem());
+			}
+		}
+
+		nota.getItens().removeAll(listaItensParaDeletar);
+		itemRepository.deleteAll(listaItensParaDeletar);
+
+		for(Item item : form.getItens()) {
+			if(!verificarItemExiste(item, nota.getItens())) {
+				Produto produto = produtoRepository.findById(item.getProduto().getId()).get();
+				item.setProduto(produto);
+				BigDecimal valorTotalItem = item.getProduto().getValorUnitario().multiply(new BigDecimal(item.getQuantidade()));
+				item.setValorTotalItem(valorTotalItem);
+				totalDaNota = totalDaNota.add(valorTotalItem);
+				nota.getItens().add(item);
+			}
+		}
+		return totalDaNota;
+	}
+
+	private boolean verificarItemExiste(Item item, List<Item> lista){
+		for (Item aux : lista) if(aux.getId() == item.getId()) return true;
+		return false;
+	}
 }

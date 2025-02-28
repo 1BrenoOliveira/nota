@@ -1,0 +1,21 @@
+.corpo{
+  background-color: #fa625c;
+  display: flex;
+  justify-content: space-between;
+}
+.first-icon img{
+  padding: 4px;
+  width: 32px;
+  height: 32px;
+}
+.message{
+  color: white;
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.last-icon{
+  padding: 3px;
+}
+

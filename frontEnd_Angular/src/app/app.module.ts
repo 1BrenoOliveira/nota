@@ -13,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClienteModule } from './pages/cliente/cliente.component';
 import { ProdutoModule } from './pages/produto/produto.component';
 import { NotaModule } from './pages/nota/nota.component';
+import {MessageDetailsModule} from "./shared/components/message-details/message-details.component";
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { NotaModule } from './pages/nota/nota.component';
     ClienteModule,
     ProdutoModule,
     NotaModule,
+    MessageDetailsModule,
     DxHttpModule,
     SideNavOuterToolbarModule,
     SideNavInnerToolbarModule,
