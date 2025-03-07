@@ -12,7 +12,7 @@ import { ClienteService } from '../../shared/services/cliente.service';
   styleUrl: './cliente.component.scss'
 })
 export class ClienteComponent implements OnInit {
-  clientes: Cliente[];
+  clientes: Cliente[] = [];
 
 
   constructor(private clienteService: ClienteService){ }

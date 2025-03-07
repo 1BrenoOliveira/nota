@@ -42,7 +42,7 @@
   <dxi-column dataField="cliente" caption="Cliente" cellTemplate="clienteCellTemplate" editCellTemplate="editClienteCellTemplate">
     <dxi-validation-rule type="required"></dxi-validation-rule>
   </dxi-column>
-  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy" >
+  <dxi-column dataField="dataEmissao" dataType="date" format="dd/MM/yyyy" editCellTemplate="dataEmissaoEditCellTemplate" >
     <dxi-validation-rule type="required"></dxi-validation-rule>
   </dxi-column>
   <dxi-column dataField="valorTotal" caption="Valor" format="R$ #,##0.00" editCellTemplate="dataEmissaoEditCellTemplate"></dxi-column>
@@ -66,8 +66,24 @@
                     displayExpr="nome"
                     [value]="data.data.cliente"
                     (valueChange)="setValorNoForm($event, data)"
-                   >
+
+    >
     </dx-select-box>
+  </div>
+
+  <div *dxTemplate="let data of 'dataEmissaoEditCellTemplate'">
+        <dx-date-box
+          placeholder="dd/MM/yyyy"
+          [showClearButton]="true"
+          [useMaskBehavior]="true"
+          [displayFormat]="'dd/MM/yyyy'"
+          type="date"
+          todayButtonText="Hoje"
+          applyValueMode="useButtons"
+          [value]="data.data.dataEmissao"
+          (valueChange)="setValorNoForm($event, data)"
+        >
+        </dx-date-box>
   </div>
 
   <div *dxTemplate="let data of 'gridItensTemplate'" >
@@ -75,16 +91,16 @@
                   [(dataSource)]="data.value"
                   [showBorders]="true"
                   (dataSourceChange)="setValorNoForm($event, data)"
-                  (onRowInserted)="adicionarItem($event, data)"
+                  (onEditorPreparing)="iniciarValorTotalItem()"
+                  (onRowInserting)="adicionarItem($event, data )"
                   (onRowRemoving)="removerItem($event, data)"
                   >
-      <dxo-editing  mode="form"
+      <dxo-editing  mode="row"
                     [allowAdding]="true"
                     [allowDeleting]="true">
         <dxo-texts
           confirmDeleteTitle="Excluir Item?"
           confirmDeleteMessage="Tem certeza que deseja excluir este Item? Será excluido permanentemente..."
-
         >
         </dxo-texts>
 
@@ -94,6 +110,7 @@
           <dxi-item dataField="quantidade" ></dxi-item>
         </dxo-form>
       </dxo-editing>
+
       <dxi-column dataField="sequencial">
         <dxi-validation-rule type="required"></dxi-validation-rule>
       </dxi-column>
@@ -103,10 +120,9 @@
       <dxi-column dataField="quantidade">
         <dxi-validation-rule type="required"></dxi-validation-rule>
       </dxi-column>
-      <dxi-column dataField="valorTotalItem" [width]="180"  format="R$ #,##0.00" > </dxi-column>
-      <dxo-summary>
-        <dxi-total-item column="valorTotalItem"  summaryType="sum" displayFormat="Total: {0}"  valueFormat="R$ #,##0.00">
-        </dxi-total-item>
+      <dxi-column dataField="valorTotalItem" [width]="180"  format="R$ #,##0.00" editCellTemplate="readOnlyTemplate"></dxi-column>
+      <dxo-summary >
+        <dxi-total-item column="valorTotalItem"   summaryType="sum" displayFormat="Total: {0}"  valueFormat="R$ #,##0.00"> </dxi-total-item>
       </dxo-summary>
       <div *dxTemplate="let data of 'produtoCellTemplate'">{{data.data.produto ? data.data.produto.descricao : "não tem"}}</div>
       <div *dxTemplate="let data of 'produtoEditCellTemplate'">
@@ -115,6 +131,12 @@
                        [value]="data.data.produto"
                        (valueChange)="setValorNoForm($event, data)" >
         </dx-select-box>
+      </div>
+      <div *dxTemplate="let data of 'readOnlyTemplate'">
+        <dx-text-box
+          [(value)] = valorTotalItem
+          [readOnly]="true"
+          (click)="mostrar($event, data)"></dx-text-box>
       </div>
       <dxo-toolbar>
         <dxi-item name="addRowButton" [options]="{ text: 'Adicionar'}"  showText="always"> </dxi-item>
@@ -125,3 +147,6 @@
     <dxi-item name="addRowButton" [options]="{ text: 'Criar novo'}"  showText="always"> </dxi-item>
   </dxo-toolbar>
 </dx-data-grid>
+
+
+

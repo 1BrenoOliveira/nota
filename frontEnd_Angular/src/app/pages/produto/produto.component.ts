@@ -13,7 +13,7 @@ import { Produto } from '../../shared/models/Produto';
 export class ProdutoComponent implements OnInit{
 
 
-  produtos: Produto[];
+  produtos: Produto[] = [];
 
   constructor(private produtoService: ProdutoService){
 

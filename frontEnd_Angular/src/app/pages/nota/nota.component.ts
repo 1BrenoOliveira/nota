@@ -1,12 +1,14 @@
-import {Nota} from '../../shared/models/Nota';
-import {NotaService} from '../../shared/services/nota.service';
-import {ClienteService} from '../../shared/services/cliente.service';
-import {Produto} from '../../shared/models/Produto';
-import {Cliente} from '../../shared/models/Cliente';
 import {Component, NgModule, OnInit} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import { DevExtremeModule,  DxDataGridModule, DxTabPanelModule, DxTemplateModule, DxToastModule } from "devextreme-angular";
+
+import {Produto} from '../../shared/models/Produto';
+import {Cliente} from '../../shared/models/Cliente';
+import {Nota} from '../../shared/models/Nota';
+import {Item} from "../../shared/models/Item";
 import {ProdutoService} from "../../shared/services/produto.service";
+import {ClienteService} from '../../shared/services/cliente.service';
+import {NotaService} from '../../shared/services/nota.service';
 import {MessageDetailsModule} from "../../shared/components/message-details/message-details.component";
 
 
@@ -19,7 +21,11 @@ import {MessageDetailsModule} from "../../shared/components/message-details/mess
 export class NotaComponent implements OnInit {
   isErroItensVisible = false;
 
-  nota: Nota;
+  nota: Nota; //referencia Nota carregada com o Editar
+  itens: Item[] = [];  //memorizar os itens para caso necessario cancelar edição...
+  valorTotalNota: number; //memorizar valor Total para caso necessario cancelar edição...
+  valorTotalItem;
+
 
   notas: Nota[] = [];
   produtos: Produto[];
@@ -47,7 +53,6 @@ export class NotaComponent implements OnInit {
       this.produtos = dados;
     })
   }
-
   private listarTodasAsNotas() {
     this.notaService.listar().subscribe(dados => {
       this.notas = dados;
@@ -75,33 +80,23 @@ export class NotaComponent implements OnInit {
       }
     }
   }
+
   private excluirRegistro(event){
     if(event.changes[0]){
       this.notaService.deletar(event.changes[0].key).subscribe();
     }
   }
 
-  private adicionarNota(event){
-    if(event.changes[0]){
-      let nota = event.changes[0].data;
-      nota.id = null;
-      this.notaService.criarNovo(nota).subscribe(dados=>{
-        var tamanho = (this.notas.length) - 1;
-        this.notas[tamanho].id = dados.id;
-        this.notas[tamanho].valorTotal = dados.valorTotal;
-      })
-    }
+  mostrar(event, data){
+    console.log(data.row.data);
+    let total = data.row.data.quantidade * data.row.data.produto.valorUnitario;
+    this.valorTotalItem = "R$ " + total.toFixed(2);
   }
 
-   private atualizarNota(event){
-    if(event.changes[0]) {
-      let nota = event.changes[0].data;
-      this.notaService.atualizar(nota).subscribe();
-    }
-    console.log("Atualizar Nota:")
-     console.log(event.changes[0].data);
-  }
 
+  iniciarValorTotalItem(){
+    this.valorTotalItem = "R$ 0.00";
+  }
    adicionarItem(event, data){
     this.isErroItensVisible = false;
     let valorTotalItem =  this.calcularTotalItem(event);
@@ -114,11 +109,9 @@ export class NotaComponent implements OnInit {
     data.data.valorTotal -= event.data.valorTotalItem;
   }
 
-
   setValorNoForm(event: any, data) {
     data.setValue(event);
   }
-
   iniciarItens(event: any) {
     event.data.itens = [];
   }
@@ -127,12 +120,37 @@ export class NotaComponent implements OnInit {
     this.isErroItensVisible = !(event);
   }
 
+  private adicionarNota(event){
+    console.log(event);
+    if(event.changes[0]){
+      let nota = event.changes[0].data;
+      nota.id = null;
+      this.notaService.criarNovo(nota).subscribe(dados=>{
+        var tamanho = (this.notas.length) - 1;
+        this.notas[tamanho].id = dados.id;
+        this.notas[tamanho].valorTotal = dados.valorTotal;
+      })
+    }
+  }
+
+  private atualizarNota(event){
+    if(event.changes[0]) {
+      let nota = event.changes[0].data;
+      this.notaService.atualizar(nota).subscribe(
+        dados => console.log(dados)
+      );
+    }
+    console.log("Atualizar Nota:")
+    console.log(event.changes[0].data);
+  }
+
    private calcularTotalItem(event){
     let item = event.data;
     let valorTotalItem =  item.produto.valorUnitario * item.quantidade;
     event.data.valorTotalItem = valorTotalItem;
     return valorTotalItem;
   }
+
 
   validarNotaPossuiItem(event){
     if(event.changes[0] && event.changes[0].data && event.changes[0].data.itens && event.changes[0].data.itens.length == 0 ) {
@@ -144,31 +162,23 @@ export class NotaComponent implements OnInit {
   cancelarEdicaoNota(event){
     if(event.changes[0]) {
       if (event.changes[0].type == 'insert') return;
-      else this.validarNotaPossuiItem(event);
-    }
-/*
-    console.log(this.nota);
-    event.changes = [{
-      data: this.nota,
-      key: this.nota.id,
-      type: 'update'
-    }];
-
-    let idNota = this.nota.id;
-    for(let nota of this.notas){
-      if(nota.id==idNota) {
-        console.log("Nota:" + nota.id);
-        nota = this.nota;
+      else{
+        this.validarNotaPossuiItem(event);
+        this.nota.itens = structuredClone(this.itens);
+        this.nota.valorTotal = this.valorTotalNota;
       }
-    }*/
-
-
+    }
   }
-
 
   registrarEstadoNota(event) {
     this.nota = event.data;
+    this.itens = [];
+    for (let item of this.nota.itens) {
+      this.itens.push(item);
+    }
+    this.valorTotalNota = this.nota.valorTotal;
   }
+
 }
 @NgModule({
   imports: [
