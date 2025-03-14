@@ -87,8 +87,7 @@ export class NotaComponent implements OnInit {
     }
   }
 
-  mostrar(event, data){
-    console.log(data.row.data);
+  atualizarSomatoriaItem( data){
     let total = data.row.data.quantidade * data.row.data.produto.valorUnitario;
     this.valorTotalItem = "R$ " + total.toFixed(2);
   }
@@ -121,7 +120,6 @@ export class NotaComponent implements OnInit {
   }
 
   private adicionarNota(event){
-    console.log(event);
     if(event.changes[0]){
       let nota = event.changes[0].data;
       nota.id = null;
@@ -136,12 +134,8 @@ export class NotaComponent implements OnInit {
   private atualizarNota(event){
     if(event.changes[0]) {
       let nota = event.changes[0].data;
-      this.notaService.atualizar(nota).subscribe(
-        dados => console.log(dados)
-      );
+      this.notaService.atualizar(nota).subscribe();
     }
-    console.log("Atualizar Nota:")
-    console.log(event.changes[0].data);
   }
 
    private calcularTotalItem(event){
@@ -177,6 +171,16 @@ export class NotaComponent implements OnInit {
       this.itens.push(item);
     }
     this.valorTotalNota = this.nota.valorTotal;
+  }
+
+
+  getValueCliente(cliente: Cliente){
+    if(cliente){
+      for (let c of this.clientes)
+        if(cliente.id == c.id)
+          return c;
+    }
+    return cliente;
   }
 
 }

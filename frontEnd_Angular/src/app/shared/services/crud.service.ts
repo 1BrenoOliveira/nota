@@ -1,22 +1,23 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { take, takeLast } from 'rxjs';
-import { PageResponse } from '../models/PageResponse';
-import { Cliente } from '../models/Cliente';
+import {catchError, take} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CrudService<T> {
+
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
     })
   }
 
-  constructor(protected http: HttpClient,
-              @Inject(String)
-              private API_URL: string) { }
+  constructor(
+    protected http: HttpClient,
+    @Inject(String)
+    private API_URL: string
+  ) { }
 
   listar(){
     return this.http.get<T[]>(this.API_URL)
@@ -36,7 +37,10 @@ export class CrudService<T> {
   }
 
   deletar(idRegistry: number){
-    return this.http.delete(`${this.API_URL}/${ idRegistry}`).pipe(take(1));
+    return this.http.delete(`${this.API_URL}/${ idRegistry}`)
+      .pipe(
+        take(1)
+      );
   }
 
 }

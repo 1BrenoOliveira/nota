@@ -64,7 +64,7 @@
     <dx-select-box  [dataSource]="clientes"
                     [searchEnabled]="true"
                     displayExpr="nome"
-                    [value]="data.data.cliente"
+                    [value]=getValueCliente(data.data.cliente)
                     (valueChange)="setValorNoForm($event, data)"
 
     >
@@ -120,7 +120,7 @@
       <dxi-column dataField="quantidade">
         <dxi-validation-rule type="required"></dxi-validation-rule>
       </dxi-column>
-      <dxi-column dataField="valorTotalItem" [width]="180"  format="R$ #,##0.00" editCellTemplate="readOnlyTemplate"></dxi-column>
+      <dxi-column dataField="valorTotalItem" [width]="180"  format="R$ #,##0.00" editCellTemplate="editValorTotalItemTemplate"></dxi-column>
       <dxo-summary >
         <dxi-total-item column="valorTotalItem"   summaryType="sum" displayFormat="Total: {0}"  valueFormat="R$ #,##0.00"> </dxi-total-item>
       </dxo-summary>
@@ -132,11 +132,11 @@
                        (valueChange)="setValorNoForm($event, data)" >
         </dx-select-box>
       </div>
-      <div *dxTemplate="let data of 'readOnlyTemplate'">
+      <div *dxTemplate="let data of 'editValorTotalItemTemplate'">
         <dx-text-box
           [(value)] = valorTotalItem
           [readOnly]="true"
-          (click)="mostrar($event, data)"></dx-text-box>
+          (click)="atualizarSomatoriaItem(data)"></dx-text-box>
       </div>
       <dxo-toolbar>
         <dxi-item name="addRowButton" [options]="{ text: 'Adicionar'}"  showText="always"> </dxi-item>
@@ -147,6 +147,5 @@
     <dxi-item name="addRowButton" [options]="{ text: 'Criar novo'}"  showText="always"> </dxi-item>
   </dxo-toolbar>
 </dx-data-grid>
-
 
 

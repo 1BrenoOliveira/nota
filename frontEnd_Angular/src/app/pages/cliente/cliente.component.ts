@@ -4,6 +4,9 @@ import { Cliente } from '../../shared/models/Cliente';
 import { CommonModule } from '@angular/common';
 import { DxDataGridModule } from 'devextreme-angular';
 import { ClienteService } from '../../shared/services/cliente.service';
+import {catchError, throwError} from "rxjs";
+import {MessageDetailsModule} from "../../shared/components/message-details/message-details.component";
+import notify from "devextreme/ui/notify";
 
 
 @Component({
@@ -14,8 +17,7 @@ import { ClienteService } from '../../shared/services/cliente.service';
 export class ClienteComponent implements OnInit {
   clientes: Cliente[] = [];
 
-
-  constructor(private clienteService: ClienteService){ }
+  constructor( private clienteService: ClienteService ){ }
 
   ngOnInit(): void {
     this.listar();
@@ -34,15 +36,27 @@ export class ClienteComponent implements OnInit {
     });
   }
 
-  removerCliente(e){
-    this.clienteService.deletar(e.data.id).subscribe();
+  removerCliente(event){
+    let cliente: Cliente = event.data
+    this.clienteService.deletar(event.data.id)
+      .pipe(
+        catchError((error)=>{
+          this.clientes.push(cliente);
+          let message;
+          if(error.error.cause.sqlstate == 23503){ // erro de constraint
+            message = "Não é possivel excluir este cliente, porque ele está vinculado a uma nota";
+          }
+          else message = "Não é possivel realizar está operação no momento. Tente mais tarde!";
+          notify(message, "error", 3000);
+          return throwError(() => new Error(message));
+        })
+      )
+      .subscribe();
   }
 
   atualizarCliente(e){
     this.clienteService.atualizar(e.data).subscribe();
   }
-
-
 
 }
 
@@ -51,6 +65,7 @@ export class ClienteComponent implements OnInit {
   imports: [
     CommonModule,
     DxDataGridModule,
+    MessageDetailsModule,
   ],
   declarations: [ClienteComponent],
   bootstrap: [ClienteComponent],
